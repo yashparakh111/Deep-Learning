@@ -90,18 +90,21 @@ from keras.wrappers.scikit_learn import KerasClassifier
 from sklearn.model_selection import cross_val_score
 from keras.models import Sequential
 from keras.layers import Dense
+import winsound
 
 def build_classifier():
     classifier = Sequential()
-    classifier.add(Dense(units = 6, kernel_initializer = 'uniform', activation = 'relu', input_dim = 11))
-    classifier.add(Dense(units = 6, kernel_initializer = 'uniform', activation = 'relu'))
+    classifier.add(Dense(units = 15, kernel_initializer = 'uniform', activation = 'relu', input_dim = 11))
+    classifier.add(Dense(units = 15, kernel_initializer = 'uniform', activation = 'relu'))
     classifier.add(Dense(units = 1, kernel_initializer = 'uniform', activation = 'sigmoid'))
-    classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
+    classifier.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = ['accuracy'])
     return classifier
-classifier = KerasClassifier(build_fn = build_classifier, batch_size = 10, epochs = 100)
-accuracies = cross_val_score(estimator = classifier, X = X_train, y = y_train, cv = 10, n_jobs = 2)
-mean = accuracies.mean()
-variance = accuracies.std()
+classifier = KerasClassifier(build_fn = build_classifier, batch_size = 100, epochs = 200)
+accuracies = cross_val_score(estimator = classifier, X = X_train, y = y_train, cv = 10, n_jobs = 1, verbose = 10)
+# mean = accuracies.mean()
+# variance = accuracies.std()
+print(accuracies.mean(), accuracies.std())
+winsound.Beep(2500, 500)
 
 # Improving the ANN
 # Dropout Regularization to reduce overfitting if needed
@@ -111,22 +114,24 @@ from keras.wrappers.scikit_learn import KerasClassifier
 from sklearn.model_selection import GridSearchCV
 from keras.models import Sequential
 from keras.layers import Dense
+from keras.layers import Dropout
+import winsound
 
 def build_classifier(optimizer):
     classifier = Sequential()
-    classifier.add(Dense(units = 6, kernel_initializer = 'uniform', activation = 'relu', input_dim = 11))
-    classifier.add(Dense(units = 6, kernel_initializer = 'uniform', activation = 'relu'))
+    classifier.add(Dense(units = 9, kernel_initializer = 'uniform', activation = 'relu', input_dim = 11))
+    classifier.add(Dense(units = 9, kernel_initializer = 'uniform', activation = 'relu'))
     classifier.add(Dense(units = 1, kernel_initializer = 'uniform', activation = 'sigmoid'))
     classifier.compile(optimizer = optimizer, loss = 'binary_crossentropy', metrics = ['accuracy'])
     return classifier
 classifier = KerasClassifier(build_fn = build_classifier)
-parameters = {'batch_size' : [25, 32],
-              'epochs' : [100, 500],
+parameters = {'batch_size' : [32, 50],
+              'epochs' : [100, 200],
               'optimizer' : ['adam', 'rmsprop']}
 grid_search = GridSearchCV(estimator = classifier, param_grid = parameters, scoring = 'accuracy', cv = 10)
 grid_search = grid_search.fit(X_train, y_train)
 best_parameter = grid_search.best_params_
 best_accuracy = grid_search.best_score_
-
+winsound.Beep(2500, 500)
 
 
